@@ -1,55 +1,5 @@
-drop table Person;
-
-create table Person 
-(
-	id_person int not null,
-	surname varchar2(20),
-	name varchar2(20),
-	gender char(1),
-	id_address int,
-	constraint PK_PERSON primary key (id_person),
-	constraint FK_PERSON_ADDRESS foreign key (id_address) references Address (id_address)
-);
-
-drop table Student;
-
-create table Student
-(
-	id_student int not null,
-	dateEnrollment date,
-	id_elder int,
-	id_marks int,
-	id_truancy int,
-	id_person int,
-	constraint PK_STUDENT primary key (id_student),
-	constraint FK_STUDENT_STUDENT foreign key (id_elder) references Student (id_student),
-	constraint FK_STUDENT_MARKS foreign key (id_marks) references Marks (id_marks),
-	constraint FK_STUDENT_TRUANCY foreign key (id_truancy) references Truancy (id_truancy)
-);
-
-drop table Class;
-
-create table Class
-(
-	id_class int not null,
-	number int 
-	constraint NUMBER_CLASS_CONSTRAINT check (number between 1 and 11),
-	character char
-	constraint CHARACTER_CLASS_CONSTRAINT check (character in ('А', 'Б', 'В', 'Г')),
-	id_student int,
-	constraint PK_CLASS primary key (id_class),
-	constraint FK_CLASS_STUDENT foreign key (id_student) references Student (id_student)
-);
-
-drop table Teacher;
-
-create table Teacher
-(
-	id_teacher int not null,
-	id_person int,
-	constraint PK_TEACHER primary key (id_teacher)
-);
-
+alter table Student drop constraint FK_STUDENT_ADDRESS;
+alter table Teacher drop constraint FK_TEACHER_ADDRESS;
 drop table Address;
 
 create table Address 
@@ -61,12 +11,27 @@ create table Address
 	constraint PK_ADDRESS primary key (id_address)
 );
 
+alter table Marks drop constraint FK_MARKS_SUBJECT;
+alter table Schedule drop constraint FK_SCHEDULE_SUBJECT;
+alter table Teacher_Subject drop constraint FK_TEACHER_SUBJECT_SUBJECT;
+alter table Truancy drop constraint FK_TRUANCY_SUBJECT;
+drop table Subject;
+
+create table Subject 
+(
+	id_subject int not null,
+	title varchar2(30)
+	constraint TITLE_SUBJECT_CONSTRAINT check (title in ('Математика', 'Информатика', 'Биология', 'История')),
+	constraint PK_SUBJECT primary key (id_subject)
+);
+
+alter table Student drop constraint FK_STUDENT_TRUANCY;
 drop table Truancy;
 
 create table Truancy 
 (
 	id_truancy int not null,
-	date date,
+	date_truancy date,
 	reason varchar2(30)
 	constraint REASON_TRUANCY_CONSTRAINT check (reason in ('Прогул', 'По болезни', 'Письменное распоряжение')),
 	id_subject int,
@@ -74,6 +39,7 @@ create table Truancy
 	constraint FK_TRUANCY_SUBJECT foreign key (id_subject) references Subject (id_subject)
 );
 
+alter table Student drop constraint FK_STUDENT_MARKS;
 drop table Marks;
 
 create table Marks 
@@ -88,14 +54,44 @@ create table Marks
 	constraint FK_MARKS_SUBJECT foreign key (id_subject) references Subject (id_subject)
 );
 
-drop table Subject;
+alter table Class drop constraint FK_CLASS_STUDENT;
+drop table Student;
+alter table Teacher_Subject drop constraint FK_TEACHER_SUBJECT_TEACHER;
+alter table Schedule drop constraint FK_SCHEDULE_TEACHER;
+drop table Teacher;
+drop type Person;
 
-create table Subject 
+create or replace type Person as object 
 (
-	id_subject int not null,
-	title varchar2(30)
-	constraint TITLE_SUBJECT_CONSTRAINT check (title in ('Математика', 'Информатика', 'Биология', 'История')),
-	constraint PK_SUBJECT primary key (id_subject)
+	surname varchar2(20),
+	name varchar2(20),
+	gender char(1)
+)
+/
+
+create table Student
+(
+	id_student int not null,
+	person Person,
+	dateEnrollment date,
+	id_elder int,
+	id_marks int,
+	id_truancy int,
+	id_address int,
+	constraint PK_STUDENT primary key (id_student),
+	constraint FK_STUDENT_ADDRESS foreign key (id_address) references Address (id_address),
+	constraint FK_STUDENT_STUDENT foreign key (id_elder) references Student (id_student),
+	constraint FK_STUDENT_MARKS foreign key (id_marks) references Marks (id_marks),
+	constraint FK_STUDENT_TRUANCY foreign key (id_truancy) references Truancy (id_truancy)
+);
+
+create table Teacher
+(
+	id_teacher int not null,
+	person Person,
+	id_address int,
+	constraint PK_TEACHER primary key (id_teacher),
+	constraint FK_TEACHER_ADDRESS foreign key (id_address) references Address (id_address)
 );
 
 drop table Teacher_Subject;
@@ -109,19 +105,36 @@ create table Teacher_Subject
 	constraint FK_TEACHER_SUBJECT_SUBJECT foreign key (id_subject) references Subject (id_subject)
 );
 
+alter table Schedule drop constraint FK_SCHEDULE_CLASS;
+drop table Class;
+
+create table Class
+(
+	id_class int not null,
+	class_number int 
+	constraint NUMBER_CLASS_CONSTRAINT check (class_number between 1 and 11),
+	class_character char
+	constraint CHARACTER_CLASS_CONSTRAINT check (class_character in ('А', 'Б', 'В', 'Г')),
+	id_student int,
+	constraint PK_CLASS primary key (id_class),
+	constraint FK_CLASS_STUDENT foreign key (id_student) references Student (id_student)
+);
+
+alter table Schedule drop constraint FK_SCHEDULE_CLASSROOM;
 drop table Classroom;
 
 create table Classroom 
 (
 	id_classroom int not null,
-	number int
-	constraint NUMBER_CLASSROOM_CONSTRAINT check (number between 100 and 300),
+	classroom_number int
+	constraint NUMBER_CLASSROOM_CONSTRAINT check (classroom_number between 100 and 300),
 	floor int
 	constraint FLOOR_CLASSROOM_CONSTRAINT check (floor between 1 and 3),
 	building varchar2(20),
 	constraint PK_CLASSROOM primary key (id_classroom)
 );
 
+alter table Schedule drop constraint FK_SCHEDULE_WEEKDAY;
 drop table WeekDay;
 
 create table WeekDay 
@@ -133,13 +146,14 @@ create table WeekDay
 	constraint PK_WEEKDAY primary key (id_day)
 );
 
+alter table Schedule drop constraint FK_SCHEDULE_LESSONTIME;
 drop table LessonTime;
 
 create table LessonTime 
 (
 	lesson_number int not null,
-	start timestamp,
-	end timestamp,
+	start_lesson timestamp,
+	end_lesson timestamp,
 	constraint PK_LESSONTIME primary key (lesson_number)
 );
 
