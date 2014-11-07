@@ -10,7 +10,6 @@ drop table Truancy;
 drop table Marks;
 alter table Student drop constraint FK_STUDENT_CLASS;
 drop table Student;
-drop table Class;
 alter table Teacher_Subject drop constraint FK_TEACHER_SUBJECT_TEACHER;
 alter table Schedule drop constraint FK_SCHEDULE_TEACHER;
 drop table Teacher;
