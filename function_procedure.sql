@@ -81,3 +81,24 @@ BEGIN
 delete_rows('Address', 'id_address = 1');
   
 END;
+
+
+/* ------------------------- OUT CURSOR PROCEDURE --------------------------- */
+/* connection.execute("call procCursor(:1)", [new oracle.OutParam(oracle.OCCICURSOR)] */
+drop procedure procCursor;
+
+CREATE OR REPLACE PROCEDURE procCursor(outParam OUT SYS_REFCURSOR)
+  IS
+  BEGIN
+    open outParam for
+    select s.person.name, s.person.surname, s.person.gender,
+    dateEnrollment, street, city, class_number, class_character
+    from Student s, Address, Class
+    where s.id_address = Address.id_address and
+    s.id_class = Class.id_class
+    order by 1 ASC;
+END;
+
+variable rc refcursor;
+exec procCursor( :rc );
+print rc;
