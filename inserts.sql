@@ -38,6 +38,17 @@ insert into Marks values(3, 9, 1, 3, 1);
 insert into Marks values(4, 8, 1, 4, 1);
 insert into Marks values(5, 9, 2, 4, 1);
 
+insert all into Marks(id_marks, mark, semester, id_subject, id_student)
+values(marks_seq.nextval, mar_marks, mar_semester, mar_id_subject, mar_id_student)
+select
+  9 as mar_marks,
+  3 as mar_semester,
+  Subject.id_subject as mar_id_subject,
+  s.id_student as mar_id_student
+from Subject, Student s
+where s.person.surname = 'Testovich' and
+Subject.title = 'Математика';
+
 /* ----------- Truancy ---------------- */
 insert into Truancy values(1, TO_DATE('2003-05-03', 'yyyy-mm-dd'), 'Прогул', 1, 1);
 insert into Truancy values(2, TO_DATE('2003-06-01', 'yyyy-mm-dd'), 'По болезни', 2, 1);

@@ -40,9 +40,7 @@ begin
 
 /* ------- Запуск Процедуры ------ */
 SET SERVEROUTPUT ON
-
 DECLARE 
-
 BEGIN
 
 avgMarkInClass(1, 'Математика');
